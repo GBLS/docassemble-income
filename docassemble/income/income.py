@@ -82,6 +82,9 @@ class HourlyOrPeriodicValue(PeriodicValue):
             return Decimal(self.hourly_rate * self.hours_per_period * self.period) / Decimal(period_to_use)        
         return (Decimal(self._value) * Decimal(self.period)) / Decimal(period_to_use)
 
+    def __str__(self):
+        return self.kind
+
 class HourlyOrPeriodicFinancialList(DAList):
     """Represents a set of income items, each of which has an associated period or hourly wages."""
     def init(self, *pargs, **kwargs):

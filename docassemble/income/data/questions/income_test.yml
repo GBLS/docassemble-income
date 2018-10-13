@@ -15,7 +15,7 @@ question: |
 yesno: my_income_list.there_are_any
 ---
 question: |
-  You said you have ${ len(my_income_list) } sources of income.
+  You said you have ${ comma_and_list(my_income_list) } sources of income.
   Do you have any more income?
 yesno: my_income_list.there_is_another
 ---
