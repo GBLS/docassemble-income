@@ -1,0 +1,46 @@
+---
+modules:
+  - docassemble.base.util
+  - .income
+---
+objects: 
+  - income_list: HourlyOrPeriodicFinancialList
+---
+mandatory: True
+code: |
+  income_list.complete_attribute = 'is_hourly'
+---
+question: |
+  Do you have any income?
+yesno: income_list.there_are_any
+---
+question: |
+  Do you have any more income?
+yesno: income_list.there_is_another
+---
+question: |
+  What is your income?
+fields:
+  - Is it an hourly job?: income_list[i].is_hourly
+    datatype: yesno
+  - Hourly rate: income_list[i].hourly_rate
+    datatype: currency
+    show if: income_list[i].is_hourly
+  - Average hours worked per period: income_list[i].hours_per_period
+    datatype: integer
+    show if: income_list[i].is_hourly
+  - Amount earned: income_list[i].value 
+    datatype: currency
+    show if:
+      variable: income_list[i].is_hourly
+      is: False
+  - Over what time period: income_list[i].period
+    datatype: number
+    code: |
+      period_list()
+---
+mandatory: True
+question: |
+  Your annual income is ${ currency(income_list.total()) }
+  
+  Your monthly income is ${ currency(income_list.total(period_to_use=12)) }
