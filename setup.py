@@ -45,7 +45,7 @@ def find_package_data(where='.', package='', exclude=standard_exclude, exclude_d
     return out
 
 setup(name='docassemble.income',
-      version='0.0.1',
+      version='0.0.2',
       description=('A module to help with gathering a financial statement, including hourly wages'),
       long_description='# Income Module for Docassemble',
       long_description_content_type='text/markdown',

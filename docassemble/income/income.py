@@ -2,7 +2,7 @@ from docassemble.base.core import DAObject, DAList, DADict
 from docassemble.base.util import Value, PeriodicValue, FinancialList, PeriodicFinancialList
 from decimal import Decimal
 
-def asset_list() :
+def asset_type_list() :
     """Returns a list of assset types for a multiple choice dropdown"""
     return [
         'Savings',
@@ -17,7 +17,7 @@ def asset_list() :
         'Other Asset'
     ]
 
-def income_list() :
+def income_type_list() :
     """Returns a list of income types for a multiple choice dropdown"""
     return [
         'Wages',
@@ -34,7 +34,7 @@ def income_list() :
         'Other Support'
     ]
 
-def expenses_list() :
+def expenses_type_list() :
     """Returns a list of expense types for a multiple choice dropdown"""
     return [
         'Rent',
@@ -82,18 +82,19 @@ class HourlyOrPeriodicValue(PeriodicValue):
             return Decimal(self.hourly_rate * self.hours_per_period * self.period) / Decimal(period_to_use)        
         return (Decimal(self._value) * Decimal(self.period)) / Decimal(period_to_use)
 
-class HourlyOrPeriodicFinancialList(PeriodicFinancialList):
+class HourlyOrPeriodicFinancialList(DAList):
     """Represents a set of income items, each of which has an associated period or hourly wages."""
     def init(self, *pargs, **kwargs):
+        self.elements = list()
         self.object_type = HourlyOrPeriodicValue
-        return super(PeriodicFinancialList, self).init(*pargs, **kwargs)
+        return super(HourlyOrPeriodicFinancialList, self).init(*pargs, **kwargs)
     def total(self, period_to_use=1):
         """Returns the total periodic value in the list, gathering the list items if necessary."""
         self._trigger_gather()
         result = 0
         if period_to_use == 0:
             return(result)
-        for item in sorted(self.elements.keys()):
+        for item in self.elements:
             #if self.elements[item].exists:
-            result += Decimal(self.elements[item].amount(period_to_use=period_to_use))
-        return result
+            result += Decimal(item.amount(period_to_use=period_to_use))
+        return result 
