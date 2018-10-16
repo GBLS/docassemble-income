@@ -1,60 +1,242 @@
 ---
+comment: |
+  This example file shows how to collect different types of financial income for
+  a financial statement.
+  
+  You can collect salaried and hourly jobs, jobs with net/gross pay, assets,
+  and expenses. There are functions to tally up total wages, and separate ones
+  for totaling up gross/net pay, if you need to collect those separately. You
+  can't total gross/net pay in the same list together with jobs that don't specify
+  gross or net pay.
+  
+  The examples use a Docassemble table which supports a built-in way to add additional
+  items, so we don't need to use the there_is_another field.
+---
 modules:
   - docassemble.base.util
   - .income
 ---
 objects: 
-  - my_income_list: HourlyOrPeriodicFinancialList
----
-mandatory: True
-code: |
-  my_income_list.complete_attribute = 'is_hourly'
----
-question: |
-  Do you have any income?
-yesno: my_income_list.there_are_any
+  - jobs: HourlyOrPeriodicFinancialList.using(there_is_another=False,complete_attribute='is_hourly')
+  - other_income: HourlyOrPeriodicFinancialList.using(there_is_another=False,complete_attribute='kind')
+  - assets: ValueList.using(there_is_another=False,complete_attribute='kind')
+  - income_assets: HourlyOrPeriodicFinancialList.using(there_is_another=False,complete_attribute='kind')
+  - expenses: HourlyOrPeriodicFinancialList.using(there_is_another=False,complete_attribute='kind')
 ---
 question: |
-  You said you have ${ comma_and_list(my_income_list) } sources of income.
-  Do you have any more income?
-yesno: my_income_list.there_is_another
----
-question: |
-  What is your income?
+  What types of financial information do you want to collect?
 fields:
-  - Is it an hourly job?: my_income_list[i].is_hourly
+  - Employment income: jobs.there_are_any
     datatype: yesno
-  - What type of income is it?: my_income_list[i].kind
-    code: |
-      income_type_list()
-  - Hourly rate: my_income_list[i].hourly_rate
+  - Other income: other_income.there_are_any
+    datatype: yesno
+  - Assets that generate income (i.e., savings accounts): income_assets.there_are_any
+    datatype: yesno
+  - Assets that don't generate income (such as cars, boats, etc.): assets.there_are_any
+    datatype: yesno
+  - Expenses: expenses.there_are_any
+    datatype: yesno
+---
+question: |
+  Do you want to add any more income?
+yesno: jobs.there_is_another
+---
+table: jobs.table
+rows: jobs
+columns:
+  - Employer: |
+      row_item.employer
+  - Amount: |
+      currency(row_item.amount())
+edit:
+  - is_hourly 
+minimum_number: 1
+---
+table: other_income.table
+rows: other_income
+columns:
+  - Type: |
+      row_item.kind if defined('row_item.kind') else ''
+  - Amount: |
+      currency(row_item.amount())
+edit:
+  - kind 
+minimum_number: 1
+---
+table: assets.table
+rows: assets
+columns:
+  - Type: |
+      row_item.kind if defined('row_item.kind') else ''
+  - Amount: |
+      currency(row_item.amount())
+edit:
+  - kind 
+minimum_number: 1
+---
+table: income_assets.table
+rows: income_assets
+columns:
+  - Type: |
+      row_item.kind if defined('row_item.kind') else ''
+  - Amount: |
+      currency(row_item.amount())
+edit:
+  - kind 
+minimum_number: 1
+---
+table: expenses.table
+rows: expenses
+columns:
+  - Type: |
+      row_item.kind if defined('row_item.kind') else ''
+  - Amount: |
+      currency(row_item.amount())
+edit:
+  - kind 
+minimum_number: 1
+---
+question: |
+  Describe your ${ordinal(i)} job.
+fields:
+  - Who is the employer?: jobs[i].employer
+  - Is it an hourly job?: jobs[i].is_hourly
+    datatype: yesno
+  - Hourly rate: jobs[i].hourly_rate
     datatype: currency
-    show if: my_income_list[i].is_hourly
-  - Average hours worked per period: my_income_list[i].hours_per_period
+    show if: jobs[i].is_hourly
+  - Average hours worked per period: jobs[i].hours_per_period
     datatype: integer
-    show if: my_income_list[i].is_hourly
-  - Amount earned: my_income_list[i].value 
+    show if: jobs[i].is_hourly
+  - Amount earned: jobs[i].value 
     datatype: currency
     show if:
-      variable: my_income_list[i].is_hourly
+      variable: jobs[i].is_hourly
       is: False
-  - Over what time period: my_income_list[i].period
+  - '': jobs[i].period
+    datatype: number
+    code: |
+      period_list()
+---
+question: |
+  What income do you have that is not from a job?
+fields:
+  - What type of income is it?: other_income[i].kind
+    code: |
+      income_type_list()
+    exclude: |
+      'wages'
+  - Amount earned: other_income[i].value 
+    datatype: currency
+  - Over what time period: other_income[i].period
+    datatype: number
+    code: |
+      period_list()
+---
+question: |
+  What non-income generating assets do you have?
+fields:
+  - What type of asset is it?: assets[i].kind
+    code: |
+      asset_type_list()
+  - Loan amount (if any): assets[i].amount_owed
+    datatype: currency      
+  - Present Value: assets[i].value 
+    datatype: currency
+---
+question: |
+  What income generating assets do you have?
+fields:
+  - What type of asset is it?: income_assets[i].kind
+    code: |
+      asset_type_list()
+  - Present Value: income_assets[i].value 
+    datatype: currency
+  - Income generated by this asset: income_assets[i].income
+    datatype: currency
+  - Loan amount (if any): income_assets[i].amount_owed
+    datatype: currency
+  - Over what time period: income_assets[i].period
+    datatype: number
+    code: |
+      period_list()
+---
+question: |
+  What expenses do you have?
+fields:
+  - What type of expense is it?: expenses[i].kind
+    code: |
+      expense_type_list()
+  - Expense amount: expenses[i].value 
+    datatype: currency
+  - Over what time period: expenses[i].period
     datatype: number
     code: |
       period_list()
 ---
 mandatory: True
 question: |
-  Your annual income is ${ currency(my_income_list.total()) }
+  Annual Income from Jobs
+subquestion: |
+  ${ jobs.table }
+
+  Your total annual income is ${ currency(jobs.total()) }
   
-  Your monthly income is ${ currency(my_income_list.total(period_to_use=12)) }
-subquestion: |
-  % for job in my_income_list:
-  ${ job.kind} earns ${currency(job.amount(period_to_use=12))} per month.
-  % endfor
+  Your total monthly income is ${ currency(jobs.total(period_to_use=12)) }  
+
+  ${ jobs.add_action() }
+  
+  
+field: income_summary
 ---
-#mandatory: True
+mandatory: True
 question: |
-  Blah
+  Annual Other Income
 subquestion: |
-  ${ dir(my_income_list) }
+  ${ other_income.table }
+
+  Your total annual non-wage income is ${ currency(other_income.total()) }
+  
+  Your total monthly non-wage income is ${ currency(other_income.total(period_to_use=12)) }  
+
+  The kinds of income include ${ comma_and_list(other_income.kinds()) }
+
+  ${ other_income.add_action() }
+  
+  
+field: other_income_summary
+---
+mandatory: True
+question: |
+  Assets
+subquestion: |
+  ${ assets.table }
+  
+  ${ assets.add_action() }
+  
+  ${ income_assets.table }
+  
+  ${ income_assets.add_action() }
+  
+  The kinds of income-generating assets include ${ comma_and_list(income_assets.kinds()) }
+  and the kinds of non-income assets include ${ comma_and_list(assets.kinds()) }.
+
+ 
+field: assets_summary
+---
+mandatory: True
+question: |
+  Expenses
+subquestion: |
+  ${ expenses.table }
+  
+  The kinds of expenses include ${ comma_and_list(expenses.kinds()) }
+  
+  ${ expenses.add_action() }
+  
+
+field: expenses_summary
+---
+mandatory: True
+question: All done
+
