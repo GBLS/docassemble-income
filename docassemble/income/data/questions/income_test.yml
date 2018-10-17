@@ -17,11 +17,11 @@ modules:
   - .income
 ---
 objects: 
-  - jobs: HourlyOrPeriodicFinancialList.using(there_is_another=False,complete_attribute='is_hourly')
-  - other_income: HourlyOrPeriodicFinancialList.using(there_is_another=False,complete_attribute='kind')
+  - jobs: JobList.using(there_is_another=False,complete_attribute='is_hourly')
+  - other_income: IncomeList.using(there_is_another=False,complete_attribute='kind')
   - assets: ValueList.using(there_is_another=False,complete_attribute='kind')
-  - income_assets: HourlyOrPeriodicFinancialList.using(there_is_another=False,complete_attribute='kind')
-  - expenses: HourlyOrPeriodicFinancialList.using(there_is_another=False,complete_attribute='kind')
+  - income_assets: IncomeList.using(there_is_another=False,complete_attribute='kind')
+  - expenses: ValueList.using(there_is_another=False,complete_attribute='kind')
 ---
 question: |
   What types of financial information do you want to collect?

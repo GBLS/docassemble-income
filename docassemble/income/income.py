@@ -21,7 +21,8 @@ def income_type_list() :
     """Returns a list of income types for a multiple choice dropdown"""
     return [
         ['wages','Wages'],
-        ['ssr','Social Security Benefits'],
+        ['ssr','Social Security Retirement Benefits'],
+        ['ssdi','Social Security Disability Benefits'],
         ['ssi','Supplemental Security Income (SSI)'],
         ['pension','Pension'],
         ['tafdc','TAFDC'],
@@ -58,7 +59,7 @@ def expense_type_list() :
     ]
 
 
-class HourlyOrPeriodicValue(PeriodicValue):
+class Income(PeriodicValue):
     """Represents a job which may have an hourly rate or a salary.
         Hourly rate jobs must include hours and period. 
         Period is some demoninator of a year for compatibility with
@@ -85,27 +86,24 @@ class HourlyOrPeriodicValue(PeriodicValue):
             return Decimal(self.hourly_rate * self.hours_per_period * self.period) / Decimal(period_to_use)        
         return (Decimal(self._value) * Decimal(self.period)) / Decimal(period_to_use)
 
+class Job(Income):
+    """Represents a job that may be hourly or pay-period based. If non-hourly, may specify gross and net income amounts"""
     def net(self, period_to_use=1):
         """Returns the net amount. Only applies if value is non-hourly."""
         return (Decimal(self.net) * Decimal(self.period)) / Decimal(period_to_use)
     def gross(self, period_to_use=1):
         """Returns the gross amount. Only applies if value is non-hourly."""
         return (Decimal(self.gross) * Decimal(self.period)) / Decimal(period_to_use)
-    def income(self, period_to_use):
-        """Returns the income, which may be different from value for an asset like a Savings account."""
-        return (Decimal(self.income) * Decimal(self.period)) / Decimal(period_to_use)
-    def __str__(self):
-        return self.kind
 
 class SimpleValue(DAObject):
     """Like a Value object, but no fiddling around with .exists attribute because it's designed to store in a list, not a dictionary"""
     def amount(self):
-        return self.value
+        return self.value    
     def __str__(self):
         return self.value
 
 class ValueList(DAList):
-    """Represents a filterable DAList of Values"""
+    """Represents a filterable DAList of SimpleValues"""
     def init(self, *pargs, **kwargs):
         self.elements = list()
         self.object_type = SimpleValue
@@ -114,7 +112,8 @@ class ValueList(DAList):
         """Returns a set of the unique kinds of values stored in the list. Will fail if any items in the list leave the kind field unspecified"""
         kinds = set()
         for item in self.elements:
-            kinds.add(item.kind)
+            if hasattr(item,'kind'):
+                kinds.add(item.kind)
         return kinds
     def total(self, kind=None):
         """Returns the total value in the list, gathering the list items if necessary.
@@ -135,19 +134,19 @@ class ValueList(DAList):
                     result += Decimal(item.amount())
         return result
 
-
-class HourlyOrPeriodicFinancialList(DAList):
+class IncomeList(DAList):
     """Represents a filterable DAList of income items, each of which has an associated period or hourly wages."""
     
     def init(self, *pargs, **kwargs):
         self.elements = list()
-        self.object_type = HourlyOrPeriodicValue
-        return super(HourlyOrPeriodicFinancialList, self).init(*pargs, **kwargs)        
+        self.object_type = Income
+        return super(IncomeList, self).init(*pargs, **kwargs)        
     def kinds(self):
         """Returns a set of the unique kinds of values stored in the list. Will fail if any items in the list leave the kind field unspecified"""
         kinds = set()
         for item in self.elements:
-            kinds.add(item.kind)
+            if hasattr(item,'kind'):
+                kinds.add(item.kind)
         return kinds
 
     def total(self, period_to_use=1, kind=None):
@@ -171,6 +170,32 @@ class HourlyOrPeriodicFinancialList(DAList):
                     result += Decimal(item.amount(period_to_use=period_to_use))
         return result
 
+    def income_total(self, period_to_use=1, kind=None):
+        self._trigger_gather()
+        result = 0
+        if period_to_use == 0:
+            return(result)
+        if kind is None:
+            for item in self.elements:
+                #if self.elements[item].exists:
+                result += Decimal(item.income(period_to_use=period_to_use))
+        elif isinstance(kind, list):
+            for item in self.elements:
+                if item.kind in kind:
+                    result += Decimal(item.income(period_to_use=period_to_use))
+        else:
+            for item in self.elements:
+                if item.kind == kind:
+                    result += Decimal(item.income(period_to_use=period_to_use))
+        return result
+
+class JobList(IncomeList):
+    """Represents a list of jobs. Adds the net_total and gross_total methods to the IncomeList class"""
+    def init(self, *pargs, **kwargs):
+        self.elements = list()
+        self.object_type = Job
+        return super(JobList, self).init(*pargs, **kwargs)        
+    
     def gross_total(self, period_to_use=1, kind=None):
         self._trigger_gather()
         result = 0
@@ -206,23 +231,4 @@ class HourlyOrPeriodicFinancialList(DAList):
             for item in self.elements:
                 if item.kind == kind:
                     result += Decimal(item.net(period_to_use=period_to_use))
-        return result
-    
-    def income_total(self, period_to_use=1, kind=None):
-        self._trigger_gather()
-        result = 0
-        if period_to_use == 0:
-            return(result)
-        if kind is None:
-            for item in self.elements:
-                #if self.elements[item].exists:
-                result += Decimal(item.income(period_to_use=period_to_use))
-        elif isinstance(kind, list):
-            for item in self.elements:
-                if item.kind in kind:
-                    result += Decimal(item.income(period_to_use=period_to_use))
-        else:
-            for item in self.elements:
-                if item.kind == kind:
-                    result += Decimal(item.income(period_to_use=period_to_use))
         return result
