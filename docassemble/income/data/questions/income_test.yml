@@ -18,10 +18,10 @@ modules:
 ---
 objects: 
   - jobs: JobList.using(there_is_another=False,complete_attribute='is_hourly')
-  - other_income: IncomeList.using(there_is_another=False,complete_attribute='kind')
-  - assets: ValueList.using(there_is_another=False,complete_attribute='kind')
-  - income_assets: IncomeList.using(there_is_another=False,complete_attribute='kind')
-  - expenses: ValueList.using(there_is_another=False,complete_attribute='kind')
+  - other_income: IncomeList.using(there_is_another=False,complete_attribute='type')
+  - assets: ValueList.using(there_is_another=False,complete_attribute='type')
+  - income_assets: IncomeList.using(there_is_another=False,complete_attribute='type')
+  - expenses: ValueList.using(there_is_another=False,complete_attribute='type')
 ---
 question: |
   What types of financial information do you want to collect?
@@ -56,44 +56,44 @@ table: other_income.table
 rows: other_income
 columns:
   - Type: |
-      row_item.kind if defined('row_item.kind') else ''
+      row_item.type if defined('row_item.type') else ''
   - Amount: |
       currency(row_item.amount())
 edit:
-  - kind 
+  - type 
 minimum_number: 1
 ---
 table: assets.table
 rows: assets
 columns:
   - Type: |
-      row_item.kind if defined('row_item.kind') else ''
+      row_item.type if defined('row_item.type') else ''
   - Amount: |
       currency(row_item.amount())
 edit:
-  - kind 
+  - type 
 minimum_number: 1
 ---
 table: income_assets.table
 rows: income_assets
 columns:
   - Type: |
-      row_item.kind if defined('row_item.kind') else ''
+      row_item.type if defined('row_item.type') else ''
   - Amount: |
       currency(row_item.amount())
 edit:
-  - kind 
+  - type 
 minimum_number: 1
 ---
 table: expenses.table
 rows: expenses
 columns:
   - Type: |
-      row_item.kind if defined('row_item.kind') else ''
+      row_item.type if defined('row_item.type') else ''
   - Amount: |
       currency(row_item.amount())
 edit:
-  - kind 
+  - type 
 minimum_number: 1
 ---
 question: |
@@ -116,12 +116,12 @@ fields:
   - '': jobs[i].period
     datatype: number
     code: |
-      period_list()
+      period_list() + [[4,"Per quarter"]]
 ---
 question: |
   What income do you have that is not from a job?
 fields:
-  - What type of income is it?: other_income[i].kind
+  - What type of income is it?: other_income[i].type
     code: |
       income_type_list()
     exclude: |
@@ -136,7 +136,7 @@ fields:
 question: |
   What non-income generating assets do you have?
 fields:
-  - What type of asset is it?: assets[i].kind
+  - What type of asset is it?: assets[i].type
     code: |
       asset_type_list()
   - Loan amount (if any): assets[i].amount_owed
@@ -147,7 +147,7 @@ fields:
 question: |
   What income generating assets do you have?
 fields:
-  - What type of asset is it?: income_assets[i].kind
+  - What type of asset is it?: income_assets[i].type
     code: |
       asset_type_list()
   - Present Value: income_assets[i].value 
@@ -164,7 +164,7 @@ fields:
 question: |
   What expenses do you have?
 fields:
-  - What type of expense is it?: expenses[i].kind
+  - What type of expense is it?: expenses[i].type
     code: |
       expense_type_list()
   - Expense amount: expenses[i].value 
@@ -199,7 +199,7 @@ subquestion: |
   
   Your total monthly non-wage income is ${ currency(other_income.total(period_to_use=12)) }  
 
-  The kinds of income include ${ comma_and_list(other_income.kinds()) }
+  The types of income include ${ comma_and_list(other_income.types()) }
 
   ${ other_income.add_action() }
   
@@ -218,8 +218,8 @@ subquestion: |
   
   ${ income_assets.add_action() }
   
-  The kinds of income-generating assets include ${ comma_and_list(income_assets.kinds()) }
-  and the kinds of non-income assets include ${ comma_and_list(assets.kinds()) }.
+  The types of income-generating assets include ${ comma_and_list(income_assets.types()) }
+  and the types of non-income assets include ${ comma_and_list(assets.types()) }.
 
  
 field: assets_summary
@@ -230,7 +230,7 @@ question: |
 subquestion: |
   ${ expenses.table }
   
-  The kinds of expenses include ${ comma_and_list(expenses.kinds()) }
+  The types of expenses include ${ comma_and_list(expenses.types()) }
   
   ${ expenses.add_action() }
   

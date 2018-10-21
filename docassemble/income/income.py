@@ -1,6 +1,17 @@
 from docassemble.base.core import DAObject, DAList, DADict
 from docassemble.base.util import Value, PeriodicValue, FinancialList, PeriodicFinancialList
 from decimal import Decimal
+import datetime
+
+def recent_years(years=15, order='descending',future=1):
+    """Returns a list of the most recent years, continuing into the future. Defaults to most recent 15 years+1. Useful to populate
+        a combobox of years where the most recent ones are most likely. E.g. automobile years or birthdate.
+        Keyword paramaters: years, order (descending or ascending), future (defaults to 1)"""
+    now = datetime.datetime.now()
+    if order=='ascending':
+        return list(range(now.year-years,now.year+future,1))
+    else:
+        return list(range(now.year+future,now.year-years,-1))
 
 def asset_type_list() :
     """Returns a list of assset types for a multiple choice dropdown"""
@@ -71,7 +82,7 @@ class Income(PeriodicValue):
     # value
     # net
     # gross
-    # kind
+    # type
     @property
     def value(self):
         return self.amount()
@@ -108,29 +119,29 @@ class ValueList(DAList):
         self.elements = list()
         self.object_type = SimpleValue
         return super(ValueList, self).init(*pargs, **kwargs)        
-    def kinds(self):
-        """Returns a set of the unique kinds of values stored in the list. Will fail if any items in the list leave the kind field unspecified"""
-        kinds = set()
+    def types(self):
+        """Returns a set of the unique types of values stored in the list. Will fail if any items in the list leave the type field unspecified"""
+        types = set()
         for item in self.elements:
-            if hasattr(item,'kind'):
-                kinds.add(item.kind)
-        return kinds
-    def total(self, kind=None):
+            if hasattr(item,'type'):
+                types.add(item.type)
+        return types
+    def total(self, type=None):
         """Returns the total value in the list, gathering the list items if necessary.
-        You can specify kind, which may be a list, to coalesce multiple entries of the same kind."""
+        You can specify type, which may be a list, to coalesce multiple entries of the same type."""
         self._trigger_gather()
         result = 0
-        if kind is None:
+        if type is None:
             for item in self.elements:
                 #if self.elements[item].exists:
                 result += Decimal(item.amount())
-        elif isinstance(kind, list):
+        elif isinstance(type, list):
             for item in self.elements:
-                if item.kind in kind:
+                if item.type in type:
                     result += Decimal(item.amount())
         else:
             for item in self.elements:
-                if item.kind == kind:
+                if item.type == type:
                     result += Decimal(item.amount())
         return result
 
@@ -141,51 +152,51 @@ class IncomeList(DAList):
         self.elements = list()
         self.object_type = Income
         return super(IncomeList, self).init(*pargs, **kwargs)        
-    def kinds(self):
-        """Returns a set of the unique kinds of values stored in the list. Will fail if any items in the list leave the kind field unspecified"""
-        kinds = set()
+    def types(self):
+        """Returns a set of the unique types of values stored in the list. Will fail if any items in the list leave the type field unspecified"""
+        types = set()
         for item in self.elements:
-            if hasattr(item,'kind'):
-                kinds.add(item.kind)
-        return kinds
+            if hasattr(item,'type'):
+                types.add(item.type)
+        return types
 
-    def total(self, period_to_use=1, kind=None):
+    def total(self, period_to_use=1, type=None):
         """Returns the total periodic value in the list, gathering the list items if necessary.
-        You can specify kind, which may be a list, to coalesce multiple entries of the same kind."""
+        You can specify type, which may be a list, to coalesce multiple entries of the same type."""
         self._trigger_gather()
         result = 0
         if period_to_use == 0:
             return(result)
-        if kind is None:
+        if type is None:
             for item in self.elements:
                 #if self.elements[item].exists:
                 result += Decimal(item.amount(period_to_use=period_to_use))
-        elif isinstance(kind, list):
+        elif isinstance(type, list):
             for item in self.elements:
-                if item.kind in kind:
+                if item.type in type:
                     result += Decimal(item.amount(period_to_use=period_to_use))
         else:
             for item in self.elements:
-                if item.kind == kind:
+                if item.type == type:
                     result += Decimal(item.amount(period_to_use=period_to_use))
         return result
 
-    def income_total(self, period_to_use=1, kind=None):
+    def income_total(self, period_to_use=1, type=None):
         self._trigger_gather()
         result = 0
         if period_to_use == 0:
             return(result)
-        if kind is None:
+        if type is None:
             for item in self.elements:
                 #if self.elements[item].exists:
                 result += Decimal(item.income(period_to_use=period_to_use))
-        elif isinstance(kind, list):
+        elif isinstance(type, list):
             for item in self.elements:
-                if item.kind in kind:
+                if item.type in type:
                     result += Decimal(item.income(period_to_use=period_to_use))
         else:
             for item in self.elements:
-                if item.kind == kind:
+                if item.type == type:
                     result += Decimal(item.income(period_to_use=period_to_use))
         return result
 
@@ -196,39 +207,39 @@ class JobList(IncomeList):
         self.object_type = Job
         return super(JobList, self).init(*pargs, **kwargs)        
     
-    def gross_total(self, period_to_use=1, kind=None):
+    def gross_total(self, period_to_use=1, type=None):
         self._trigger_gather()
         result = 0
         if period_to_use == 0:
             return(result)
-        if kind is None:
+        if type is None:
             for item in self.elements:
                 #if self.elements[item].exists:
                 result += Decimal(item.gross(period_to_use=period_to_use))
-        elif isinstance(kind, list):
+        elif isinstance(type, list):
             for item in self.elements:
-                if item.kind in kind:
+                if item.type in type:
                     result += Decimal(item.gross(period_to_use=period_to_use))
         else:
             for item in self.elements:
-                if item.kind == kind:
+                if item.type == type:
                     result += Decimal(item.gross(period_to_use=period_to_use))
         return result
-    def net_total(self, period_to_use=1, kind=None):
+    def net_total(self, period_to_use=1, type=None):
         self._trigger_gather()
         result = 0
         if period_to_use == 0:
             return(result)
-        if kind is None:
+        if type is None:
             for item in self.elements:
                 #if self.elements[item].exists:
                 result += Decimal(item.net(period_to_use=period_to_use))
-        elif isinstance(kind, list):
+        elif isinstance(type, list):
             for item in self.elements:
-                if item.kind in kind:
+                if item.type in type:
                     result += Decimal(item.net(period_to_use=period_to_use))
         else:
             for item in self.elements:
-                if item.kind == kind:
+                if item.type == type:
                     result += Decimal(item.net(period_to_use=period_to_use))
         return result
