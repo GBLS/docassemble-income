@@ -194,23 +194,21 @@ class IncomeList(DAList):
                     result += Decimal(item.amount(period_to_use=period_to_use))
         return result
 
-    def income_total(self, period_to_use=1, type=None):
+    def balance_total(self, type=None):
         self._trigger_gather()
         result = 0
-        if period_to_use == 0:
-            return(result)
         if type is None:
             for item in self.elements:
                 #if self.elements[item].exists:
-                result += Decimal(item.income(period_to_use=period_to_use))
+                result += Decimal(item.balance)
         elif isinstance(type, list):
             for item in self.elements:
                 if item.type in type:
-                    result += Decimal(item.income(period_to_use=period_to_use))
+                    result += Decimal(item.balance)
         else:
             for item in self.elements:
                 if item.type == type:
-                    result += Decimal(item.income(period_to_use=period_to_use))
+                    result += Decimal(item.balance)
         return result
 
 class JobList(IncomeList):
