@@ -83,40 +83,41 @@ class Income(PeriodicValue):
     # net
     # gross
     # type
-    @property
-    def value(self):
-        return self.amount()
     
-    @value.setter
-    def value(self, value):
-        self._value = value
+
+    #@property
+    #def value(self):
+    #    return self.amount()
     
+    #@value.setter
+    #def value(self, newVal):
+    #    self._value = newVal 
 
     def amount(self, period_to_use=1):
         """Returns the amount earned over the specified period """
         if hasattr(self, 'is_hourly') and self.is_hourly:
             return Decimal(self.hourly_rate * self.hours_per_period * self.period) / Decimal(period_to_use)        
-        return (Decimal(self._value) * Decimal(self.period)) / Decimal(period_to_use)
+        return (Decimal(self.value) * Decimal(self.period)) / Decimal(period_to_use)
 
 class Job(Income):
     """Represents a job that may be hourly or pay-period based. If non-hourly, may specify gross and net income amounts"""
-    @property
-    def net(self, period_to_use=1):
+    #@property
+    def net_amount(self, period_to_use=1):
         """Returns the net amount (e.g., minus deductions). Only applies if value is non-hourly."""
-        return (Decimal(self._net) * Decimal(self.period)) / Decimal(period_to_use)
+        return (Decimal(self.net) * Decimal(self.period)) / Decimal(period_to_use)
 
-    @net.setter
-    def net(self, value):
-        self._net = value
+    #@net.setter
+    #def net(self, value):
+    #    self._net = value
 
-    @property
-    def gross(self, period_to_use=1):
+    #@property
+    def gross_amount(self, period_to_use=1):
         """Gross amount is identical to value"""
         return (Decimal(self.value) * Decimal(self.period)) / Decimal(period_to_use)
 
-    @gross.setter
-    def gross(self,value):
-        self._value = value
+    #@gross.setter
+    #def gross(self,value):
+    #    self._value = value
 
 class SimpleValue(DAObject):
     """Like a Value object, but no fiddling around with .exists attribute because it's designed to store in a list, not a dictionary"""
@@ -227,15 +228,15 @@ class JobList(IncomeList):
         if type is None:
             for item in self.elements:
                 #if self.elements[item].exists:
-                result += Decimal(item.gross(period_to_use=period_to_use))
+                result += Decimal(item.gross_amount(period_to_use=period_to_use))
         elif isinstance(type, list):
             for item in self.elements:
                 if item.type in type:
-                    result += Decimal(item.gross(period_to_use=period_to_use))
+                    result += Decimal(item.gross_amount(period_to_use=period_to_use))
         else:
             for item in self.elements:
                 if item.type == type:
-                    result += Decimal(item.gross(period_to_use=period_to_use))
+                    result += Decimal(item.gross_amount(period_to_use=period_to_use))
         return result
     def net_total(self, period_to_use=1, type=None):
         self._trigger_gather()
@@ -245,13 +246,13 @@ class JobList(IncomeList):
         if type is None:
             for item in self.elements:
                 #if self.elements[item].exists:
-                result += Decimal(item.net(period_to_use=period_to_use))
+                result += Decimal(item.net_amount(period_to_use=period_to_use))
         elif isinstance(type, list):
             for item in self.elements:
                 if item.type in type:
-                    result += Decimal(item.net(period_to_use=period_to_use))
+                    result += Decimal(item.net_amount(period_to_use=period_to_use))
         else:
             for item in self.elements:
                 if item.type == type:
-                    result += Decimal(item.net(period_to_use=period_to_use))
+                    result += Decimal(item.net_amount(period_to_use=period_to_use))
         return result
