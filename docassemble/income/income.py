@@ -144,7 +144,8 @@ class IncomeList(DAList):
     
     def init(self, *pargs, **kwargs):
         self.elements = list()
-        self.object_type = Income
+        if not hasattr(self, 'object_type'):
+            self.object_type = Income
         return super(IncomeList, self).init(*pargs, **kwargs)        
     def types(self):
         """Returns a set of the unique types of values stored in the list. Will fail if any items in the list leave the type field unspecified"""
@@ -195,7 +196,7 @@ class IncomeList(DAList):
 class JobList(IncomeList):
     """Represents a list of jobs. Adds the net_total and gross_total methods to the IncomeList class"""
     def init(self, *pargs, **kwargs):
-        self.elements = list()
+        # self.elements = list()
         self.object_type = Job
         return super(JobList, self).init(*pargs, **kwargs)        
     
