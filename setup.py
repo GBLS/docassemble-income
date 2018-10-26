@@ -45,7 +45,7 @@ def find_package_data(where='.', package='', exclude=standard_exclude, exclude_d
     return out
 
 setup(name='docassemble.income',
-      version='0.0.10',
+      version='0.0.11',
       description=('A module to help with gathering a financial statement, including hourly wages'),
       long_description='# Income Module for Docassemble\r\n\r\nIncludes examples at docassemble.income:interview_test.yml\r\n\r\n## Classes\r\n\r\n### Income\r\n\r\n### IncomeList\r\n\r\n### Job\r\n\r\n### JobList\r\n\r\n### SimpleValue\r\n\r\n### ValueList\r\n\r\n## Utility functions\r\n\r\n```\r\nrecent_years(years=15, order=\'descending\',future=1):\r\n    """Returns a list of the most recent years, continuing into the future. Defaults to most recent 15 years+1. Useful to populate\r\n        a combobox of years where the most recent ones are most likely. E.g. automobile years or birthdate.\r\n        Keyword paramaters: years, order (descending or ascending), future (defaults to 1)"""\r\n        \r\nasset_type_list() :\r\n    """Returns a list of assset types for a multiple choice dropdown"""\r\n    \r\nincome_type_list() :\r\n    """Returns a list of income types for a multiple choice dropdown"""\r\n\r\nexpense_type_list() :\r\n    """Returns a list of expense types for a multiple choice dropdown"""\r\n```',
       long_description_content_type='text/markdown',
