@@ -83,15 +83,6 @@ class Income(PeriodicValue):
     # net
     # gross
     # type
-    
-
-    #@property
-    #def value(self):
-    #    return self.amount()
-    
-    #@value.setter
-    #def value(self, newVal):
-    #    self._value = newVal 
 
     def amount(self, period_to_use=1):
         """Returns the amount earned over the specified period """
@@ -101,23 +92,13 @@ class Income(PeriodicValue):
 
 class Job(Income):
     """Represents a job that may be hourly or pay-period based. If non-hourly, may specify gross and net income amounts"""
-    #@property
     def net_amount(self, period_to_use=1):
         """Returns the net amount (e.g., minus deductions). Only applies if value is non-hourly."""
         return (Decimal(self.net) * Decimal(self.period)) / Decimal(period_to_use)
 
-    #@net.setter
-    #def net(self, value):
-    #    self._net = value
-
-    #@property
     def gross_amount(self, period_to_use=1):
         """Gross amount is identical to value"""
         return (Decimal(self.value) * Decimal(self.period)) / Decimal(period_to_use)
-
-    #@gross.setter
-    #def gross(self,value):
-    #    self._value = value
 
 class SimpleValue(DAObject):
     """Like a Value object, but no fiddling around with .exists attribute because it's designed to store in a list, not a dictionary"""
