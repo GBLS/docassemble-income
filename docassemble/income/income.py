@@ -2,6 +2,24 @@ from docassemble.base.core import DAObject, DAList, DADict
 from docassemble.base.util import Value, PeriodicValue, FinancialList, PeriodicFinancialList
 from decimal import Decimal
 import datetime
+import docassemble.base.functions
+
+def flatten(listname,index=1):
+    """Return just the nth item in an 2D list. Intended to use for multiple choice option lists in Docassemble.
+        e.g., flatten(asset_type_list()) will return ['Savings','Certificate of Deposit'...] """
+    return [item[index] for item in listname]
+
+def income_period_list():
+    return [
+        [12,"Monthly"],
+        [1,"Yearly"],
+        [52,"Weekly"],
+        [24,"Twice per month"],
+        [26,"Once every two weeks"],
+        [4,"Once every 3 months"]
+    ]
+
+docassemble.base.functions.update_language_function('*', 'period_list', income_period_list)
 
 def recent_years(years=15, order='descending',future=1):
     """Returns a list of the most recent years, continuing into the future. Defaults to most recent 15 years+1. Useful to populate
@@ -30,8 +48,10 @@ def asset_type_list() :
 
 def income_type_list() :
     """Returns a list of income types for a multiple choice dropdown"""
+    return [['wages','Wages']].extend(non_wage_income_list())
+
+def non_wage_income_list():
     return [
-        ['wages','Wages'],
         ['ssr','Social Security Retirement Benefits'],
         ['ssdi','Social Security Disability Benefits'],
         ['ssi','Supplemental Security Income (SSI)'],

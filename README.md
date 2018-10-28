@@ -32,4 +32,10 @@ income_type_list() :
 
 expense_type_list() :
     """Returns a list of expense types for a multiple choice dropdown"""
+    
+def flatten(listname,index=1):
+    """Return just the nth item in an 2D list. Intended to use for multiple choice option lists in Docassemble.
+        e.g., flatten(asset_type_list()) will return ['Savings','Certificate of Deposit'...] """
+
+def non_wage_income_list():
 ```
