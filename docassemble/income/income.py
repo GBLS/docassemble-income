@@ -195,20 +195,31 @@ class IncomeList(DAList):
                 if item.type == type:
                     result += Decimal(item.amount(period_to_use=period_to_use))
         return result
+    
+    def market_value_total(self, type=None):
+        """Returns the total market value of values in the list."""
+        for item in self.elements:
+            if type is None:
+                result += Decimal(item.market_value)
+            elif isinstance(type, list): 
+                if item.type in type:
+                    result += Decimal(item.market_value)
+            else:
+                if item.type == type:
+                    result += Decimal(item.market_value)
+        return result
+
 
     def balance_total(self, type=None):
         self._trigger_gather()
         result = 0
-        if type is None:
-            for item in self.elements:
-                #if self.elements[item].exists:
+        for item in self.elements:
+            if type is None:
                 result += Decimal(item.balance)
-        elif isinstance(type, list):
-            for item in self.elements:
+            elif isinstance(type, list): 
                 if item.type in type:
                     result += Decimal(item.balance)
-        else:
-            for item in self.elements:
+            else:
                 if item.type == type:
                     result += Decimal(item.balance)
         return result
