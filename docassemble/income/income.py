@@ -198,6 +198,7 @@ class IncomeList(DAList):
     
     def market_value_total(self, type=None):
         """Returns the total market value of values in the list."""
+        result = 0
         for item in self.elements:
             if type is None:
                 result += Decimal(item.market_value)
