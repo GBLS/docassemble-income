@@ -52,14 +52,14 @@ def income_type_list() :
 
 def non_wage_income_list():
     return [
-        ['ssr','Social Security Retirement Benefits'],
-        ['ssdi','Social Security Disability Benefits'],
-        ['ssi','Supplemental Security Income (SSI)'],
+        ['SSR','Social Security Retirement Benefits'],
+        ['SSDI','Social Security Disability Benefits'],
+        ['SSI','Supplemental Security Income (SSI)'],
         ['pension','Pension'],
-        ['tafdc','TAFDC'],
-        ['eaedc','EAEDC'],
+        ['TAFDC','TAFDC'],
+        ['EAEDC','EAEDC'],
         ['public assistance','Other public assistance'],
-        ['tanf','Food Stamps (TANF)'],
+        ['SNAP','Food Stamps (SNAP)'],
         ['rent','Income from real estate (rent, etc)'],
         ['room and board','Room and/or Board Payments'],
         ['child support','Child Support'],
