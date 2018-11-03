@@ -14,6 +14,9 @@ Includes examples at docassemble.income:interview_test.yml
     def types(self):
         """Returns a set of the unique types of values stored in the list. Will fail if any items in the list leave the type field unspecified"""
 
+    def owners(self, type=None):
+        """Returns a set of the unique owners for the specified type of value stored in the list. If type is None, returns all unique owners in the IncomeList"""
+
     def total(self, period_to_use=1, type=None):
         """Returns the total periodic value in the list, gathering the list items if necessary.
     

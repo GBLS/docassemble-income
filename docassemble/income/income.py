@@ -170,12 +170,30 @@ class IncomeList(DAList):
             self.object_type = Income
         return super(IncomeList, self).init(*pargs, **kwargs)        
     def types(self):
-        """Returns a set of the unique types of values stored in the list. Will fail if any items in the list leave the type field unspecified"""
+        """Returns a set of the unique types of values stored in the list."""
         types = set()
         for item in self.elements:
             if hasattr(item,'type'):
                 types.add(item.type)
         return types
+
+    def owners(self, type=None):
+        """Returns a set of the unique owners for the specified type of value stored in the list. If type is None, returns all 
+        unique owners in the IncomeList"""
+        owners=set()
+        if type is None:
+            for item in self.elements:
+                if hasattr(item, 'owner'):
+                    owners.add(item.owner)
+        elif isinstance(type, list):
+            for item in self.elements:
+                if hasattr(item,'owner') and hasattr(item,'type') and item.type in type:
+                    owners.add(item.owner)
+        else:
+            for item in self.elements:
+                if hasattr(item,'owner') and item.type == type:
+                    owners.add(item.owner)
+        return owners
 
     def total(self, period_to_use=1, type=None):
         """Returns the total periodic value in the list, gathering the list items if necessary.
