@@ -48,7 +48,9 @@ def asset_type_list() :
 
 def income_type_list() :
     """Returns a list of income types for a multiple choice dropdown"""
-    return [['wages','Wages']].extend(non_wage_income_list())
+    type_list = non_wage_income_list()
+    type_list.insert(0,['wages','Wages'])
+    return type_list
 
 def non_wage_income_list():
     return [

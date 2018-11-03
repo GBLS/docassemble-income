@@ -4,18 +4,55 @@ Includes examples at docassemble.income:interview_test.yml
 
 ## Classes
 
-### Income
+### Income(PeriodicValue)
+```
+    def amount(self, period_to_use=1):
+        """Returns the amount earned over the specified period """
+```
+### IncomeList(DAList)
+```
+    def types(self):
+        """Returns a set of the unique types of values stored in the list. Will fail if any items in the list leave the type field unspecified"""
 
-### IncomeList
+    def total(self, period_to_use=1, type=None):
+        """Returns the total periodic value in the list, gathering the list items if necessary.
+    
+    def market_value_total(self, type=None):
+        """Returns the total market value of values in the list."""
 
-### Job
+    def balance_total(self, type=None):
+```
 
+### Job(Income)
+```
+    def net_amount(self, period_to_use=1):
+        """Returns the net amount (e.g., minus deductions). Only applies if value is non-hourly."""
+
+    def gross_amount(self, period_to_use=1):
+        """Gross amount is identical to value"""
+```
 ### JobList
+```
+    def gross_total(self, period_to_use=1, type=None):
+
+    def net_total(self, period_to_use=1, type=None):
+ 
+```
 
 ### SimpleValue
 
-### ValueList
+```
+    def amount(self):
 
+```
+
+### ValueList
+```
+    def types(self):
+        """Returns a set of the unique types of values stored in the list. Will fail if any items in the list leave the type field unspecified"""
+
+    def total(self, type=None):
+```
 ## Utility functions
 
 ```
@@ -30,6 +67,9 @@ asset_type_list() :
 income_type_list() :
     """Returns a list of income types for a multiple choice dropdown"""
 
+def non_wage_income_list():
+    """Returns a list of income types for a multiple choice dropdown, excluding wages"""
+
 expense_type_list() :
     """Returns a list of expense types for a multiple choice dropdown"""
     
@@ -37,5 +77,4 @@ def flatten(listname,index=1):
     """Return just the nth item in an 2D list. Intended to use for multiple choice option lists in Docassemble.
         e.g., flatten(asset_type_list()) will return ['Savings','Certificate of Deposit'...] """
 
-def non_wage_income_list():
 ```
