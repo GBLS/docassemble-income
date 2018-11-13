@@ -33,63 +33,64 @@ def recent_years(years=15, order='descending',future=1):
 
 def asset_type_list() :
     """Returns a list of assset types for a multiple choice dropdown"""
-    return [
-        ['savings', 'Savings'],
-        ['cd','Certificate of Deposit'],
-        ['ira','Individual Retirement Account'],
-        ['mutual fund','Money or Mutual Fund'],
-        ['stocks','Stocks or Bonds'],
-        ['trust','Trust Fund'],
-        ['checking','Checking Account'],
-        ['vehicle','Vehicle'],
-        ['real estate','Real Estate'],
-        ['other','Other Asset']
-    ]
+    return {
+        'savings': 'Savings',
+        'cd': 'Certificate of Deposit',
+        'ira': 'Individual Retirement Account',
+        'mutual fund': 'Money or Mutual Fund',
+        'stocks': 'Stocks or Bonds',
+        'trust': 'Trust Fund',
+        'checking': 'Checking Account',
+        'vehicle': 'Vehicle',
+        'real estate': 'Real Estate',
+        'other': 'Other Asset'
+    }
 
 def income_type_list() :
-    """Returns a list of income types for a multiple choice dropdown"""
+    """Returns a dict of income types for a multiple choice dropdown"""
     type_list = non_wage_income_list()
-    type_list.insert(0,['wages','Wages'])
+    type_list['wages'] = 'Wages'
     return type_list
 
 def non_wage_income_list():
-    return [
-        ['SSR','Social Security Retirement Benefits'],
-        ['SSDI','Social Security Disability Benefits'],
-        ['SSI','Supplemental Security Income (SSI)'],
-        ['pension','Pension'],
-        ['TAFDC','TAFDC'],
-        ['EAEDC','EAEDC'],
-        ['public assistance','Other public assistance'],
-        ['SNAP','Food Stamps (SNAP)'],
-        ['rent','Income from real estate (rent, etc)'],
-        ['room and board','Room and/or Board Payments'],
-        ['child support','Child Support'],
-        ['alimony','Alimony'],
-        ['other','Other Support']
-    ]
+    """Returns a dict of income types, excluding wages"""
+    return {
+        'SSR': 'Social Security Retirement Benefits',
+        'SSDI': 'Social Security Disability Benefits',
+        'SSI': 'Supplemental Security Income (SSI)',
+        'pension': 'Pension',
+        'TAFDC': 'TAFDC',
+        'EAEDC': 'EAEDC',
+        'public assistance': 'Other public assistance',
+        'SNAP': 'Food Stamps (SNAP)',
+        'rent': 'Income from real estate (rent, etc)',
+        'room and board': 'Room and/or Board Payments',
+        'child support': 'Child Support',
+        'alimony': 'Alimony',
+        'other': 'Other Support'
+    }
 
 def expense_type_list() :
-    """Returns a list of expense types for a multiple choice dropdown"""
-    return [
-        ['rent','Rent'],
-        ['mortgage','Mortgage'],
-        ['food','Food'],
-        ['utilities','Utilities'],
-        ['fuel','Other Heating/Cooking Fuel'],
-        ['clothing','Clothing'],
-        ['credit cards','Credit Card Payments'],
-        ['property tax','Property Tax (State and Local)'],
-        ['other taxes','Other taxes and fees related to your home'],
-        ['insurance','Insurance'],
-        ['medical','Medical-Dental (after amount paid by insurance)'],
-        ['auto','Car operation and maintenance'],
-        ['transportation','Other transportation'],
-        ['charity','Church or charitable donations'],
-        ['loan payments','Loan, credit, or lay-away payments'],
-        ['support','Support to someone not in household'],
-        ['other','Other']
-    ]
+    """Returns a dict of expense types for a multiple choice dropdown"""
+    return {
+        'rent': 'Rent',
+        'mortgage': 'Mortgage',
+        'food': 'Food',
+        'utilities': 'Utilities',
+        'fuel': 'Other Heating/Cooking Fuel',
+        'clothing': 'Clothing',
+        'credit cards': 'Credit Card Payments',
+        'property tax': 'Property Tax (State and Local)',
+        'other taxes': 'Other taxes and fees related to your home',
+        'insurance': 'Insurance',
+        'medical': 'Medical-Dental (after amount paid by insurance)',
+        'auto': 'Car operation and maintenance',
+        'transportation': 'Other transportation',
+        'charity': 'Church or charitable donations',
+        'loan payments': 'Loan, credit, or lay-away payments',
+        'support': 'Support to someone not in household',
+        'other': 'Other'
+    }
 
 
 class Income(PeriodicValue):
