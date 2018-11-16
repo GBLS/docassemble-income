@@ -22,6 +22,19 @@ objects:
   - assets: ValueList.using(there_is_another=False,complete_attribute='type')
   - income_assets: IncomeList.using(there_is_another=False,complete_attribute='type')
   - expenses: ValueList.using(there_is_another=False,complete_attribute='type')
+  - vehicles: VehicleList.using(there_is_another=False,there_are_any=True,complete_attribute='year')
+---
+question: |
+  Vehicle
+fields:
+  - Year: vehicles[0].year
+  - Make: vehicles[0].make
+  - Model: vehicles[0].model
+---
+mandatory: True
+question: |
+  You said the vehicle was ${vehicles[0].year_make_model()}
+field: ok  
 ---
 question: |
   What types of financial information do you want to collect?

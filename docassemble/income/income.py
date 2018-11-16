@@ -130,6 +130,11 @@ class SimpleValue(DAObject):
     def __str__(self):
         return self.value
 
+class Vehicle(SimpleValue):
+    """Vehicles have a method year_make_model() """
+    def year_make_model(self):
+        return self.year + ' / ' + self.make + ' / ' + self.model
+
 class ValueList(DAList):
     """Represents a filterable DAList of SimpleValues"""
     def init(self, *pargs, **kwargs):
@@ -161,6 +166,12 @@ class ValueList(DAList):
                 if item.type == type:
                     result += Decimal(item.amount())
         return result
+
+class VehicleList(ValueList):
+    """List of vehicles, extends ValueList. Vehicles have a method year_make_model() """
+    def init(self, *pargs, **kwargs):
+        super(VehicleList, self).init(*pargs, **kwargs)
+        self.object_type = Vehicle
 
 class IncomeList(DAList):
     """Represents a filterable DAList of income items, each of which has an associated period or hourly wages."""

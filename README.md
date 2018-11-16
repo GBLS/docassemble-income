@@ -49,6 +49,9 @@ Includes examples at docassemble.income:interview_test.yml
 
 ```
 
+### Vehicle
+Like SimpleValue, but adds year_make_model method
+
 ### ValueList
 ```
     def types(self):
@@ -56,6 +59,9 @@ Includes examples at docassemble.income:interview_test.yml
 
     def total(self, type=None):
 ```
+
+### VehicleList
+
 ## Utility functions
 
 ```
