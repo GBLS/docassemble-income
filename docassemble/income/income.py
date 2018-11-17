@@ -67,7 +67,8 @@ def non_wage_income_list():
         'room and board': 'Room and/or Board Payments',
         'child support': 'Child Support',
         'alimony': 'Alimony',
-        'other': 'Other Support'
+        'other': 'Other',
+        'other support': 'Other Support'
     }
 
 def expense_type_list() :
@@ -212,12 +213,16 @@ class IncomeList(DAList):
         return owners
 
     def matches(self, type):
-        """Returns an IncomeList consisting only of elements matching the specified Income type, assisting in filling PDFs with predefined spaces"""
-        return IncomeList(elements = [item for item in self.elements where item.type == type])
+        """Returns an IncomeList consisting only of elements matching the specified Income type, assisting in filling PDFs with predefined spaces. Type may be a list"""
+        if isinstance(type, list):
+            return IncomeList(elements = [item for item in self.elements if item.type in type])
+        else:
+            return IncomeList(elements = [item for item in self.elements if item.type == type])
 
-    def total(self, period_to_use=1, type=None):
+    def total(self, period_to_use=1, type=None,owner=None):
         """Returns the total periodic value in the list, gathering the list items if necessary.
-        You can specify type, which may be a list, to coalesce multiple entries of the same type."""
+        You can specify type, which may be a list, to coalesce multiple entries of the same type.
+        Similarly, you can specify owner."""
         self._trigger_gather()
         result = 0
         if period_to_use == 0:
@@ -229,11 +234,19 @@ class IncomeList(DAList):
         elif isinstance(type, list):
             for item in self.elements:
                 if item.type in type:
-                    result += Decimal(item.amount(period_to_use=period_to_use))
+                    if owner is None:
+                        result += Decimal(item.amount(period_to_use=period_to_use))
+                    else:
+                        if item.owner == owner:
+                            result += Decimal(item.amount(period_to_use=period_to_use))
         else:
             for item in self.elements:
                 if item.type == type:
-                    result += Decimal(item.amount(period_to_use=period_to_use))
+                    if owner is None:
+                        result += Decimal(item.amount(period_to_use=period_to_use))
+                    else:
+                        if item.owner == owner:
+                            result += Decimal(item.amount(period_to_use=period_to_use))
         return result
     
     def market_value_total(self, type=None):
