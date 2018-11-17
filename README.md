@@ -24,6 +24,9 @@ Includes examples at docassemble.income:interview_test.yml
         """Returns the total market value of values in the list."""
 
     def balance_total(self, type=None):
+    
+    def matches(self, type):
+        """Returns an IncomeList consisting only of elements matching the specified Income type, assisting in filling PDFs with predefined spaces"""
 ```
 
 ### Job(Income)

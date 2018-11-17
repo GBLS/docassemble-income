@@ -123,6 +123,10 @@ class Job(Income):
         """Gross amount is identical to value"""
         return (Decimal(self.value) * Decimal(self.period)) / Decimal(period_to_use)
 
+    def name_address_phone(self):
+        """Returns concatenation of name, address and phone number of employer"""
+        return self.employer + ': ' + self.employer_address + ', ' + self.employer_phone
+
 class SimpleValue(DAObject):
     """Like a Value object, but no fiddling around with .exists attribute because it's designed to store in a list, not a dictionary"""
     def amount(self):
@@ -206,6 +210,10 @@ class IncomeList(DAList):
                 if hasattr(item,'owner') and item.type == type:
                     owners.add(item.owner)
         return owners
+
+    def matches(self, type):
+        """Returns an IncomeList consisting only of elements matching the specified Income type, assisting in filling PDFs with predefined spaces"""
+        return IncomeList(elements = [item for item in self.elements where item.type == type])
 
     def total(self, period_to_use=1, type=None):
         """Returns the total periodic value in the list, gathering the list items if necessary.
