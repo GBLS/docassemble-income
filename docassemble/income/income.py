@@ -3,6 +3,8 @@ from docassemble.base.util import Value, PeriodicValue, FinancialList, PeriodicF
 from decimal import Decimal
 import datetime
 import docassemble.base.functions
+from collections import OrderedDict
+
 
 def flatten(listname,index=1):
     """Return just the nth item in an 2D list. Intended to use for multiple choice option lists in Docassemble.
@@ -33,8 +35,8 @@ def recent_years(years=15, order='descending',future=1):
 
 def asset_type_list() :
     """Returns a list of assset types for a multiple choice dropdown"""
-    return {
-        'savings': 'Savings',
+    return OrderedDict({
+        'savings': 'Savings Account',
         'cd': 'Certificate of Deposit',
         'ira': 'Individual Retirement Account',
         'mutual fund': 'Money or Mutual Fund',
@@ -44,17 +46,20 @@ def asset_type_list() :
         'vehicle': 'Vehicle',
         'real estate': 'Real Estate',
         'other': 'Other Asset'
-    }
+    })
 
 def income_type_list() :
     """Returns a dict of income types for a multiple choice dropdown"""
-    type_list = non_wage_income_list()
-    type_list['wages'] = 'Wages'
+    type_list = OrderedDict()
+    type_list['wages'] = 'A job or self-employment'
+
+    type_list.update(non_wage_income_list())
+
     return type_list
 
 def non_wage_income_list():
     """Returns a dict of income types, excluding wages"""
-    return {
+    return OrderedDict({
         'SSR': 'Social Security Retirement Benefits',
         'SSDI': 'Social Security Disability Benefits',
         'SSI': 'Supplemental Security Income (SSI)',
@@ -69,11 +74,11 @@ def non_wage_income_list():
         'alimony': 'Alimony',
         'other': 'Other',
         'other support': 'Other Support'
-    }
+    })
 
 def expense_type_list() :
     """Returns a dict of expense types for a multiple choice dropdown"""
-    return {
+    return OrderedDict({
         'rent': 'Rent',
         'mortgage': 'Mortgage',
         'food': 'Food',
@@ -91,7 +96,7 @@ def expense_type_list() :
         'loan payments': 'Loan, credit, or lay-away payments',
         'support': 'Support to someone not in household',
         'other': 'Other'
-    }
+    })
 
 
 class Income(PeriodicValue):
