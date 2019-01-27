@@ -1,4 +1,4 @@
-from docassemble.base.core import DAObject, DAList, DADict
+from docassemble.base.core import DAObject, DAList, DADict, DAOrderedDict
 from docassemble.base.util import Value, PeriodicValue, FinancialList, PeriodicFinancialList
 from decimal import Decimal
 import datetime
@@ -35,68 +35,81 @@ def recent_years(years=15, order='descending',future=1):
 
 def asset_type_list() :
     """Returns a list of assset types for a multiple choice dropdown"""
-    return OrderedDict({
-        'savings': 'Savings Account',
-        'cd': 'Certificate of Deposit',
-        'ira': 'Individual Retirement Account',
-        'mutual fund': 'Money or Mutual Fund',
-        'stocks': 'Stocks or Bonds',
-        'trust': 'Trust Fund',
-        'checking': 'Checking Account',
-        'vehicle': 'Vehicle',
-        'real estate': 'Real Estate',
-        'other': 'Other Asset'
-    })
+    type_list =  DAOrderedDict()
+    type_list.auto_gather = False
+    type_list.gathered = True
+    type_list.elements.update([
+        ('savings', 'Savings Account'),
+        ('cd', 'Certificate of Deposit'),
+        ('ira', 'Individual Retirement Account'),
+        ('mutual fund', 'Money or Mutual Fund'),
+        ('stocks', 'Stocks or Bonds'),
+        ('trust', 'Trust Fund'),
+        ('checking', 'Checking Account'),
+        ('vehicle', 'Vehicle'),
+        ('real estate', 'Real Estate'),
+        ('other', 'Other Asset')
+    ])
+    return type_list
 
 def income_type_list() :
     """Returns a dict of income types for a multiple choice dropdown"""
-    type_list = OrderedDict()
+    type_list = DAOrderedDict()
     type_list['wages'] = 'A job or self-employment'
 
-    type_list.update(non_wage_income_list())
+    type_list.elements.update(non_wage_income_list())
+    type_list.auto_gather = False
+    type_list.gathered = True
 
     return type_list
 
 def non_wage_income_list():
     """Returns a dict of income types, excluding wages"""
-    return OrderedDict({
-        'SSR': 'Social Security Retirement Benefits',
-        'SSDI': 'Social Security Disability Benefits',
-        'SSI': 'Supplemental Security Income (SSI)',
-        'pension': 'Pension',
-        'TAFDC': 'TAFDC',
-        'EAEDC': 'EAEDC',
-        'public assistance': 'Other public assistance',
-        'SNAP': 'Food Stamps (SNAP)',
-        'rent': 'Income from real estate (rent, etc)',
-        'room and board': 'Room and/or Board Payments',
-        'child support': 'Child Support',
-        'alimony': 'Alimony',
-        'other': 'Other',
-        'other support': 'Other Support'
-    })
+    type_list = DAOrderedDict()
+    type_list.auto_gather = False
+    type_list.gathered = True
+    type_list.elements.update([
+        ('SSR', 'Social Security Retirement Benefits'),
+        ('SSDI', 'Social Security Disability Benefits'),
+        ('SSI', 'Supplemental Security Income (SSI)'),
+        ('pension', 'Pension'),
+        ('TAFDC', 'TAFDC'),
+        ('public assistance', 'Other public assistance'),
+        ('SNAP', 'Food Stamps (SNAP)'),
+        ('rent', 'Income from real estate (rent, etc)'),
+        ('room and board', 'Room and/or Board Payments'),
+        ('child support', 'Child Support'),
+        ('alimony', 'Alimony'),
+        ('other support', 'Other Support'),
+        ('other', 'Other')
+    ])
+    return type_list
 
 def expense_type_list() :
     """Returns a dict of expense types for a multiple choice dropdown"""
-    return OrderedDict({
-        'rent': 'Rent',
-        'mortgage': 'Mortgage',
-        'food': 'Food',
-        'utilities': 'Utilities',
-        'fuel': 'Other Heating/Cooking Fuel',
-        'clothing': 'Clothing',
-        'credit cards': 'Credit Card Payments',
-        'property tax': 'Property Tax (State and Local)',
-        'other taxes': 'Other taxes and fees related to your home',
-        'insurance': 'Insurance',
-        'medical': 'Medical-Dental (after amount paid by insurance)',
-        'auto': 'Car operation and maintenance',
-        'transportation': 'Other transportation',
-        'charity': 'Church or charitable donations',
-        'loan payments': 'Loan, credit, or lay-away payments',
-        'support': 'Support to someone not in household',
-        'other': 'Other'
-    })
+    type_list = DAOrderedDict()
+    type_list.auto_gather = False
+    type_list.gathered = True
+    type_list.elements.update([
+        ('rent', 'Rent'),
+        ('mortgage', 'Mortgage'),
+        ('food', 'Food'),
+        ('utilities', 'Utilities'),
+        ('fuel', 'Other Heating/Cooking Fuel'),
+        ('clothing', 'Clothing'),
+        ('credit cards', 'Credit Card Payments'),
+        ('property tax', 'Property Tax (State and Local)'),
+        ('other taxes', 'Other taxes and fees related to your home'),
+        ('insurance', 'Insurance'),
+        ('medical', 'Medical-Dental (after amount paid by insurance)'),
+        ('auto', 'Car operation and maintenance'),
+        ('transportation', 'Other transportation'),
+        ('charity', 'Church or charitable donations'),
+        ('loan payments', 'Loan, credit, or lay-away payments'),
+        ('support', 'Support to someone not in household'),
+        ('other', 'Other')
+    ])
+    return type_list
 
 
 class Income(PeriodicValue):
@@ -104,16 +117,14 @@ class Income(PeriodicValue):
         Hourly rate jobs must include hours and period. 
         Period is some demoninator of a year for compatibility with
         PeriodicFinancialList class. E.g, to express hours/week, use 52 """
-    # is_hourly
-    # hourly_rate
-    # hours_per_period
-    # period (1=year, 12=month, 52=week)
-    # value
-    # net
-    # gross
-    # type
 
     def amount(self, period_to_use=1):
+        if not hasattr(self, 'value') or self.value == '':
+            self.value = 0
+        if not hasattr(self, 'period') or self.period == '':
+            self.period = 0
+        if period_to_use == '':
+            period_to_use = 12            
         """Returns the amount earned over the specified period """
         if hasattr(self, 'is_hourly') and self.is_hourly:
             return Decimal(self.hourly_rate * self.hours_per_period * self.period) / Decimal(period_to_use)        
@@ -127,7 +138,7 @@ class Job(Income):
 
     def gross_amount(self, period_to_use=1):
         """Gross amount is identical to value"""
-        return (Decimal(self.value) * Decimal(self.period)) / Decimal(period_to_use)
+        return self.amount(period_to_use = period_to_use)
 
     def name_address_phone(self):
         """Returns concatenation of name, address and phone number of employer"""
