@@ -119,13 +119,17 @@ class Income(PeriodicValue):
         PeriodicFinancialList class. E.g, to express hours/week, use 52 """
 
     def amount(self, period_to_use=1):
-        if not hasattr(self, 'value') or self.value == '':
-            self.value = 0
-        if not hasattr(self, 'period') or self.period == '':
-            self.period = 0
-        if period_to_use == '':
-            period_to_use = 12            
         """Returns the amount earned over the specified period """
+        # Can't remember why I added the below so let's see what commenting
+        # it out breaks...
+        #if not hasattr(self, 'value') or self.value == '':
+        #    value = 0
+        #else:
+        #    value = self.value
+        #if not hasattr(self, 'period') or self.period == '':
+        #    period = 1
+        #else:
+        #    period = self.period
         if hasattr(self, 'is_hourly') and self.is_hourly:
             return Decimal(self.hourly_rate * self.hours_per_period * self.period) / Decimal(period_to_use)        
         return (Decimal(self.value) * Decimal(self.period)) / Decimal(period_to_use)
