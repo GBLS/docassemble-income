@@ -148,9 +148,9 @@ class Job(Income):
         """Returns concatenation of name, address and phone number of employer"""
         return self.employer + ': ' + self.employer_address + ', ' + self.employer_phone
     
-    def hours_per_period(self, period_to_use):
+    def normalized_hours(self, period_to_use):
         """Returns the number of hours worked in a given period"""
-        return self.hours_per_period * self.period / period_to_use
+        return (float(self.hours_per_period) * int(self.period)) / int(period_to_use)
 
 class SimpleValue(DAObject):
     """Like a Value object, but no fiddling around with .exists attribute because it's designed to store in a list, not a dictionary"""
