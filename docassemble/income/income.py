@@ -155,9 +155,17 @@ class Job(Income):
 class SimpleValue(DAObject):
     """Like a Value object, but no fiddling around with .exists attribute because it's designed to store in a list, not a dictionary"""
     def amount(self):
-        return self.value    
+        """If desired, to use as a ledger, values can be signed. setting transaction_type = 'expense' makes the value negative. Use min=0 in that case."""
+        if hasattr(self, 'transaction_type'):
+            return (self.value * -1) if (self.transaction_type == 'expense') else self.value
+        else:
+            return self.value
+
     def __str__(self):
-        return self.value
+        if hasattr(self, 'transaction_type'):
+            return (self.value * -1) if (self.transaction_type == 'expense') else self.value
+        else:
+            return self.value
 
 class Vehicle(SimpleValue):
     """Vehicles have a method year_make_model() """
