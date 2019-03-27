@@ -1,6 +1,6 @@
 # Income Module for Docassemble
 
-Includes examples at docassemble.income:interview_test.yml
+Includes examples at docassemble.income:interview_test.yml, docassemble.income:financial_statement.yml
 
 ## Classes
 
