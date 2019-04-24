@@ -175,9 +175,9 @@ class Vehicle(SimpleValue):
 class ValueList(DAList):
     """Represents a filterable DAList of SimpleValues"""
     def init(self, *pargs, **kwargs):
-        self.elements = list()
-        self.object_type = SimpleValue
-        return super(ValueList, self).init(*pargs, **kwargs)        
+        super(ValueList, self).init(*pargs, **kwargs)
+        self.object_type = SimpleValue        
+
     def types(self):
         """Returns a set of the unique types of values stored in the list. Will fail if any items in the list leave the type field unspecified"""
         types = set()
@@ -185,6 +185,7 @@ class ValueList(DAList):
             if hasattr(item,'type'):
                 types.add(item.type)
         return types
+        
     def total(self, type=None):
         """Returns the total value in the list, gathering the list items if necessary.
         You can specify type, which may be a list, to coalesce multiple entries of the same type."""
@@ -203,6 +204,19 @@ class ValueList(DAList):
                 if item.type == type:
                     result += Decimal(item.amount())
         return result
+
+class Ledger(ValueList):
+    """Represents an account ledger. Adds calculate method which adds a running total to the ledger."""
+    def init(self, *pargs, **kwargs):
+        super(Ledger, self).init(*pargs, **kwargs)              
+
+    def calculate(self):
+        """ Sort the ledger by date, then add a running total to each ledger entry"""
+        self.elements.sort(key=lambda y: y.date)
+        running_total = 0
+        for entry in self.elements:
+            running_total += entry.amount()
+            entry.running_total = running_total
 
 class VehicleList(ValueList):
     """List of vehicles, extends ValueList. Vehicles have a method year_make_model() """

@@ -1,0 +1,24 @@
+---
+modules:
+  - .income
+---
+objects:
+  - ledger: Ledger.using(auto_gather=False)
+---
+code: |
+  for x in range(1,6):
+    entry = ledger.appendObject()
+    entry.value = 5 * x
+    entry.date = 1
+  
+  ledger.calculate()
+  ledger.gathered = True
+---
+mandatory: True
+question: |
+  Results
+subquestion: |
+
+  % for entry in ledger:
+  * Adding ${currency(entry.amount())}. Running total is ${currency(entry.running_total)}
+  % endfor
