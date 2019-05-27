@@ -163,9 +163,9 @@ class SimpleValue(DAObject):
 
     def __str__(self):
         if hasattr(self, 'transaction_type'):
-            return (self.value * -1) if (self.transaction_type == 'expense') else self.value
+            return str( (self.value * -1) ) if (self.transaction_type == 'expense') else str ( self.value ) 
         else:
-            return self.value
+            return str( self.value )
 
 class Vehicle(SimpleValue):
     """Vehicles have a method year_make_model() """
