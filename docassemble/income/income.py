@@ -21,6 +21,15 @@ def income_period_list():
         [4,"Once every 3 months"]
     ]
 
+def income_period(index):
+    try:
+        for row in income_period_list():
+            if int(index) == int(row[0]):
+                return row[1].lower()
+    except:
+        return ''
+    return ''
+
 docassemble.base.functions.update_language_function('*', 'period_list', income_period_list)
 
 def recent_years(years=15, order='descending',future=1):
@@ -139,7 +148,7 @@ class Job(Income):
     def net_amount(self, period_to_use=1):
         """Returns the net amount (e.g., minus deductions). Only applies if value is non-hourly."""
         return (Decimal(self.net) * Decimal(self.period)) / Decimal(period_to_use)
-
+ 
     def gross_amount(self, period_to_use=1):
         """Gross amount is identical to value"""
         return self.amount(period_to_use = period_to_use)
@@ -162,10 +171,7 @@ class SimpleValue(DAObject):
             return self.value
 
     def __str__(self):
-        if hasattr(self, 'transaction_type'):
-            return str( (self.value * -1) ) if (self.transaction_type == 'expense') else str ( self.value ) 
-        else:
-            return str( self.value )
+        return str(self.amount())
 
 class Vehicle(SimpleValue):
     """Vehicles have a method year_make_model() """

@@ -89,4 +89,7 @@ def flatten(listname,index=1):
     """Return just the nth item in an 2D list. Intended to use for multiple choice option lists in Docassemble.
         e.g., flatten(asset_type_list()) will return ['Savings','Certificate of Deposit'...] """
 
+def income_period(frequency):
+  """Returns the plain language translation of the income period, which is a number"""
+
 ```
