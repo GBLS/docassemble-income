@@ -4,6 +4,7 @@ from decimal import Decimal
 import datetime
 import docassemble.base.functions
 from collections import OrderedDict
+import json
 
 
 def flatten(listname,index=1):
@@ -329,6 +330,10 @@ class IncomeList(DAList):
                 if item.type == type:
                     result += Decimal(item.balance)
         return result
+    
+    def to_json(self):
+        """Creates income list suitable for Legal Server API"""
+        return json.dumps([{"type": income.type, "frequency": income.period, "amount": income.value} for income in self.elements])
 
 class JobList(IncomeList):
     """Represents a list of jobs. Adds the net_total and gross_total methods to the IncomeList class"""
