@@ -27,6 +27,7 @@ def income_period(index):
         for row in income_period_list():
             if int(index) == int(row[0]):
                 return row[1].lower()
+        return docassemble.base.functions.nice_number(int(index), capitalize=True) + " " + docassemble.base.functions.word("times per year")
     except:
         return ''
     return ''
