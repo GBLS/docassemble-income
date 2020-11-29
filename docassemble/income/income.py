@@ -171,7 +171,7 @@ class Asset(Income):
     if not hasattr(self, 'value'):
       return 0
     else:
-      return super(self, Asset).amount(period_to_use=period_to_use)
+      return super(Asset, self).amount(period_to_use=period_to_use)
       
 class SimpleValue(DAObject):
     """Like a Value object, but no fiddling around with .exists attribute because it's designed to store in a list, not a dictionary"""
