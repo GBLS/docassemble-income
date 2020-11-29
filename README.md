@@ -65,6 +65,13 @@ Like SimpleValue, but adds year_make_model method
 
 ### VehicleList
 
+### Asset
+
+Like Income, but the value field is optional
+
+### AssetList
+list of Assets
+
 ## Utility functions
 
 ```

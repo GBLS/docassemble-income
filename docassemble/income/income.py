@@ -163,6 +163,16 @@ class Job(Income):
         """Returns the number of hours worked in a given period"""
         return (float(self.hours_per_period) * int(self.period)) / int(period_to_use)
 
+class Asset(Income):
+  """
+  Like income but with an optional value.
+  """
+  def amount(self, period_to_use=1):
+    if not hasattr(self, 'value'):
+      return 0
+    else:
+      return super(self, Asset).amount(period_to_use=period_to_use)
+      
 class SimpleValue(DAObject):
     """Like a Value object, but no fiddling around with .exists attribute because it's designed to store in a list, not a dictionary"""
     def amount(self):
@@ -340,8 +350,8 @@ class JobList(IncomeList):
     """Represents a list of jobs. Adds the net_total and gross_total methods to the IncomeList class"""
     def init(self, *pargs, **kwargs):
         # self.elements = list()
+        super(JobList, self).init(*pargs, **kwargs)        
         self.object_type = Job
-        return super(JobList, self).init(*pargs, **kwargs)        
     
     def gross_total(self, period_to_use=1, type=None):
         self._trigger_gather()
@@ -379,3 +389,8 @@ class JobList(IncomeList):
                 if item.type == type:
                     result += Decimal(item.net_amount(period_to_use=period_to_use))
         return result
+
+class AssetList(IncomeList):
+      def init(self, *pargs, **kwargs):
+        super(AssetList, self).init(*pargs, **kwargs)  
+        self.object_type = Asset
