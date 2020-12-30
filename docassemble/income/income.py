@@ -1,5 +1,5 @@
 from docassemble.base.core import DAObject, DAList, DADict, DAOrderedDict
-from docassemble.base.util import Value, PeriodicValue, FinancialList, PeriodicFinancialList
+from docassemble.base.util import Value, PeriodicValue, FinancialList, PeriodicFinancialList, DAEmpty
 from decimal import Decimal
 import datetime
 import docassemble.base.functions
@@ -298,10 +298,10 @@ class IncomeList(DAList):
         elif isinstance(type, list):
             for item in self.elements:
                 if item.type in type:
-                    if owner is None:
+                    if owner is None: # if we don't care who the owner is
                         result += Decimal(item.amount(period_to_use=period_to_use))
                     else:
-                        if item.owner == owner:
+                        if not (isinstance(owner, DAEmpty)) and item.owner == owner:
                             result += Decimal(item.amount(period_to_use=period_to_use))
         else:
             for item in self.elements:
@@ -309,7 +309,7 @@ class IncomeList(DAList):
                     if owner is None:
                         result += Decimal(item.amount(period_to_use=period_to_use))
                     else:
-                        if item.owner == owner:
+                        if not (isinstance(owner, DAEmpty)) and item.owner == owner:
                             result += Decimal(item.amount(period_to_use=period_to_use))
         return result
     
