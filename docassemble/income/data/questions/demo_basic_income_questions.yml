@@ -1,0 +1,17 @@
+---
+include:
+  - simple_income_questions.yml
+---
+mandatory: True
+question: |
+  ${ currency(client.jobs.total()) }
+  
+  ${ client.jobs.table }
+  
+  ${ assets.table }
+  
+  ${ vehicles.table }
+  
+  ${ expenses.table }
+  
+  ${ real_estate.table }

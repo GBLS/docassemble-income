@@ -1,6 +1,5 @@
 ---
 modules:
- - docassemble.base.util
  - docassemble.income.income
 ---
 objects:
@@ -10,14 +9,10 @@ objects:
                             there_is_another=False,
                             ask_number = True,
                             complete_attribute='complete')
-  - everyone: DAList.using(auto_gather=False)
-  - everyone_but_me: DAList.using(auto_gather=False)                         
-  - household.jobs: JobList.using(auto_gather = False)
-  - household.incomes: IncomeList.using(auto_gather = False)  
-  - assets: IncomeList.using(there_is_another=False,complete_attribute='type')
-  - vehicles: VehicleList.using(there_is_another=False,complete_attribute='value')
-  - real_estate: IncomeList.using(there_is_another=False,complete_attribute='value')
-  - expenses: IncomeList.using(there_is_another=False,complete_attribute='type')
+  - assets: IncomeList.using(complete_attribute='type')
+  - vehicles: VehicleList.using(complete_attribute='value')
+  - real_estate: IncomeList.using(complete_attribute='value')
+  - expenses: IncomeList.using(auto_gather=False,complete_attribute='type')
 ---
 code: |
   household[i].name.first
@@ -26,129 +21,7 @@ code: |
 generic object: Individual
 objects:
   - x.jobs: JobList.using(complete_attribute='period')
-  - x.incomes: IncomeList.using(complete_attribute='value',there_is_another=False)
----
-comment: |
-  This block and the next set the order the questions are asked in the interview.
-  To make use of it, mention household_questions and financial_statement_questions in a mandatory code block or need statement
-code: |
-  client.name.first
-  if has_spouse:
-    spouse.name.first
-  else:
-    spouse.jobs.there_are_any = False
-    spouse.incomes.there_are_any = False
-  if household.there_are_any:
-    household.target_number
-    review_household_members
-    household.gathered = True
-  else:
-    household.target_number = 0
-    household.gathered=True    
-  
-  everyone
-  everyone_but_me
-  household_questions = True
----
-code: |
-  if client.jobs.there_are_any:
-    #client.jobs[0]
-    #client.jobs.there_is_another
-    client.review_jobs
-  if client.incomes.there_are_any:
-    client.income_types
-    client.add_incomes
-    client.incomes.gathered = True
-    client.review_incomes
-  if has_spouse and spouse.jobs.there_are_any:
-    #spouse.jobs[0]
-    #spouse.jobs.there_is_another
-    spouse.review_jobs
-  if has_spouse and spouse.incomes.there_are_any:
-    spouse.income_types
-    spouse.add_incomes
-    spouse.incomes.gathered = True
-    spouse.review_incomes
-
-  collected_household_incomes
-
-  assets.asset_types
-  assets.add_assets
-  assets.gathered = True
-  if assets.there_are_any:
-    review_assets
-    
-  if real_estate.there_are_any:
-    review_real_estate
-
-  expenses_types
-  add_expenses
-  expenses.gathered=True
-  review_expenses
-  
-  if vehicles.there_are_any:
-    review_vehicles
-
-  financial_statement_questions = True
----
-code: |
-  for person in household:
-    person.income_types
-    person.add_incomes
-    person.incomes.gathered = True
-    if person.incomes.there_are_any:
-      person.review_incomes
-  collected_household_incomes = True
----
-code: |
-  assets.there_are_any = assets.type_list.any_true()
----
-code: |
-  if household.there_are_any:
-    for person in household:
-      for job in person.jobs:
-        job.whose_job = person
-        household.jobs.append(job)
-  household.jobs.gathered = True
----
-code: |
-  if household.there_are_any:
-    for person in household:
-      for income in person.incomes:
-        income.recipient = person
-        household.incomes.append(income)
-  household.incomes.gathered = True
----
-code: |
-  everyone.append(client)
-  if has_spouse:
-    everyone.append(spouse)
-  everyone.extend(household)
-  everyone.gathered = True
----
-code: |
-  if has_spouse:
-    everyone_but_me.append(spouse)
-  everyone_but_me.extend(household)
-  everyone_but_me.gathered = True
----
-question: |
-  Who lives with you?
-fields:
-  - My spouse: has_spouse
-    datatype: yesno
-  - Other people who depend on me for support: household.there_are_any
-    datatype: yesno
----
-question: |
-  Other than your spouse, how many people live with you who depend on you?
-subquestion: |
-  Include minor children or anyone else who lives with you and depends on you
-  for support. You do not need to list a roommate.
-fields:
-  - no label: household.target_number
-    datatype: integer
-    min: 0
+  - x.incomes: IncomeList.using(complete_attribute='value')
 ---
 question: |
   What is your name?
@@ -185,8 +58,6 @@ fields:
       - Grandparent
       - Unmarried partner
       - Unrelated
-  #- Does this person depend on ${client} for support?: household[i].dependent
-  #  datatype: yesnoradio    
 ---
 table: household.table
 rows: household
@@ -287,55 +158,85 @@ fields:
 ---
 generic object: Individual
 question: |
-  ${x}'s income
-subquestion: |  
-  What kinds of income does ${x} get? Include money that ${x} gets from any
-  source.
-fields:
-  - Money earned from a job or self-employment: x.jobs.there_are_any
-    datatype: yesno
-  - Money that isn't from a job: x.income_types
-    datatype: checkboxes
-    code: |
-      non_wage_income_list()  
----
-generic object: Individual
-code: |
-  x.incomes.there_are_any = x.income_types.any_true()
----
-generic object: Individual
-code: |
-  if x.income_types.any_true():
-    for type in x.income_types.true_values():
-      x.incomes.appendObject(type=type)
-  x.add_incomes = True       
----
-code: |
-  assets.there_are_any = assets.asset_types.any_true()  
----
-code: |
-  if assets.asset_types.any_true():
-    for type in assets.asset_types.true_values():
-      assets.appendObject(type=type)
-  assets.add_assets = True
----
-question: |
-  Assets (accounts and things that you may own)
+  ${x}'s employment
 subquestion: |
-  Do you, your spouse, or someone in your household own any of the following?
-fields:
-  - Real estate other than the house you live in: real_estate.there_are_any
-    datatype: yesno
-  - Cars, motorcycles, boats or other vehicles other than your family car: vehicles.there_are_any
-    help: |
-      Answer yes if someone owns a car, motorcyle, boat or any other vehicle
-    datatype: yesno
-  - Other assets: assets.asset_types
-    datatype: checkboxes
-    code: |
-      asset_type_list()
-    exclude: |
-      ['real estate','vehicle']      
+  Does ${x} get any income from working?
+yesno: x.jobs.there_are_any  
+---
+generic object: Individual
+question: |
+  Does ${x} have any income that is not from a job?
+yesno: x.incomes.there_are_any  
+---
+generic object: Individual
+question: |
+  Does ${x} have any other income that is not from a job?
+subquestion: |
+  So far you have told us about:
+  
+  % for item in x.incomes.complete_elements():
+  * ${ non_wage_income_list().get(item.type, item.type) }
+  % endfor
+yesno: x.incomes.there_is_another  
+---
+generic object: Individual
+question: |
+  Does ${x} have any other jobs?
+subquestion: |
+  So far you have told us about:
+  
+  % for item in x.jobs.complete_elements():
+  * ${ item.employer }
+  % endfor
+yesno: x.jobs.there_is_another  
+---
+generic object: Individual
+question: |
+  Does ${x} have any other assets?
+subquestion: |
+  So far you have told us about:
+  
+  % for item in assets.complete_elements():
+  * ${ asset_type_list().get(item.type, item.type) }
+  % endfor
+yesno: assets.there_is_another  
+---
+generic object: Individual
+question: |
+  Do you have any other real estate?
+subquestion: |
+  So far you have told us about:
+  
+  % for item in real_estate.complete_elements():
+  * ${ item.description }
+  % endfor
+yesno: real_estate.there_is_another  
+---
+generic object: Individual
+question: |
+  Does ${x} have any other vehicles?
+subquestion: |
+  So far you have told us about:
+  
+  % for item in vehicles.complete_elements():
+  * ${ item.year_make_model() }
+  % endfor
+yesno: vehicles.there_is_another  
+---
+generic object: Individual
+question: |
+  Do you have any assets?
+yesno: assets.there_are_any  
+---
+generic object: Individual
+question: |
+  Does you have any real estate?
+yesno: real_estate.there_are_any  
+---
+generic object: Individual
+question: |
+  Do you own any vehicles?
+yesno: vehicles.there_are_any  
 ---
 question: |
   What kind of expenses do you have?
@@ -367,6 +268,9 @@ fields:
 ---
 question: |
   How much do you spend on '${(expense_type_list()[expenses[i].type])}'?
+subquestion: |
+  If you have more than one '${(expense_type_list()[expenses[i].type])}'
+  expense in your household, you'll have a chance to add another later on.
 fields:
   - Amount: expenses[i].value
     datatype: currency
@@ -433,42 +337,7 @@ fields:
     code: |
       period_list()
 ---
-if: |
-  hasattr(x.incomes[i],'type')
-comment: |
-  This version of the question will display if the user has pre-checked the
-  income type.
 generic object: Individual
-question: | 
-  ${x}'s ${(income_type_list()[x.incomes[i].type])} income
-subquestion: |
-  How much does ${x} get from ${(income_type_list()[x.incomes[i].type])}?
-  If ${x} gets money from more than one ${(income_type_list()[x.incomes[i].type])},
-  you will have a chance to add more later.
-fields: 
-  - Please describe the kind or name of pension plan: x.incomes[i].name
-    show if:
-      code: |
-        x.incomes[i].type ==  "pension"
-  - Name of the public benefits program: x.incomes[i].name
-    show if:
-      code: |
-        x.incomes[i].type ==  "public assistance"
-  - Source of the other support: x.incomes[i].name
-    show if:
-      code: |
-        x.incomes[i].type ==  "other support"      
-  - Amount: x.incomes[i].value
-    datatype: currency
-  - How often does ${x.name.first} receive it?: x.incomes[i].period
-    default: 12
-    code: |
-      period_list()
-
----
-generic object: Individual
-if: |
-  not hasattr(x.incomes[i],'type')
 question: | 
   Tell me about the ${ ordinal(i) } kind of income ${x} gets.
 fields: 
@@ -489,42 +358,11 @@ fields:
       is: "other support"      
   - Amount: x.incomes[i].value
     datatype: currency
-  - How often does the person receive it?: x.incomes[i].period
+  - How often does ${x} get this income?: x.incomes[i].period
     default: 12
     code: |
       period_list()
 ---
-if: |
-  hasattr(assets[i],'type')
-comment: |
-  assets
-question: |
-  Information about the first ${asset_type_list()[assets[i].type]}
-subquestion: |
-  Select more than one owner if both people own _this_ ${asset_type_list()[assets[i].type]}. 
-  You'll be able to add more accounts later.
-fields:
-  - Owner(s): assets[i].owner
-    datatype: object_checkboxes
-    none of the above: False
-    choices: everyone
-  - Balance : assets[i].balance
-    datatype: currency
-  - Interest or other income: assets[i].value
-    datatype: currency
-  - Why don't you have any income from this asset?: assets[i].no_income_explanation
-    show if:
-      variable: assets[i].value
-      is: 0
-  - Income is received: assets[i].period
-    required: False
-    code: |
-      period_list()
----
-if: |
-  not hasattr(assets[i],'type')
-comment: |
-  assets
 question: |
   Describe the ${ordinal(i) } asset owned by you and your household members.
 subquestion: |
@@ -540,10 +378,6 @@ fields:
     show if:
       variable: assets[i].type
       is: 'other'     
-  - Owner(s): assets[i].owner
-    datatype: object_checkboxes
-    none of the above: False
-    choices: everyone
   - Balance : assets[i].balance
     datatype: currency
   - Interest or other Income: assets[i].value
@@ -562,10 +396,6 @@ question: |
   Describe the ${ordinal(i)} vehicle owned by you or your household members,
   other than the family car.
 fields:
-  - Owner(s): vehicles[i].owner
-    datatype: object_checkboxes
-    none of the above: False
-    choices: everyone
   - Year: vehicles[i].year
     input type: combobox
     code: |
@@ -579,23 +409,11 @@ fields:
   - Loan balance: vehicles[i].balance    
     datatype: currency
     required: False
-  - Main purpose for use: vehicles[i].primary_purpose
-    input type: combobox
-    choices: 
-      - Recreation
-      - Needed for work
 ---
-comment: |
-  real estate
+id: real estate
 question: |
   Describe the ${ordinal(i)} real estate owned by you or your household member.
-subquestion: |
-  List anyone as the owner who is named as an owner on the deed for this property.
 fields: 
-  - Owner(s): real_estate[i].owner
-    datatype: object_checkboxes
-    none of the above: False
-    choices: everyone
   - Description: real_estate[i].description
   - Market value: real_estate[i].market_value
     datatype: currency
@@ -694,7 +512,7 @@ table: x.jobs.table
 rows: x.jobs
 columns:
   - Employer: |
-      row_item.employer + ', ' + row_item.employer_address + ' (' + row_item.employer_phone + ')'
+      row_item.employer
   - Net income / Month: |
       currency(row_item.net_amount(period_to_use=12))
   - Gross income / Month: |
@@ -741,38 +559,28 @@ columns:
 table: vehicles.table
 rows: vehicles
 columns:
-  - Owner: |
-      row_item.owner
-  - Year/Make/Model: |
-      row_item.year +' ' +  row_item.make + ' ' + row_item.model
-  - Present value: |
-      currency(row_item.market_value)
-  - Loan balance: |
-      currency(row_item.balance)
-  - Purpose: |
-      row_item.primary_purpose
-edit:
-  - model
----
-table: vehicles.display_table
-rows: vehicles
-columns:
-  - Owner: |
-      row_item.owner
   - Year/Make/Model: |
       row_item.year +' ' +  row_item.make + ' ' + row_item.model
   - Present value: |
       currency(row_item.value)
   - Loan balance: |
       currency(row_item.balance)
-  - Purpose: |
-      row_item.primary_purpose
+edit:
+  - model
+---
+table: vehicles.display_table
+rows: vehicles
+columns:
+  - Year/Make/Model: |
+      row_item.year +' ' +  row_item.make + ' ' + row_item.model
+  - Present value: |
+      currency(row_item.value)
+  - Loan balance: |
+      currency(row_item.balance)
 ---
 table: assets.table
 rows: assets
 columns:
-  - Owner: |
-      row_item.owner
   - Type: |
       asset_type_list()[row_item.type]
   - Income: |
@@ -795,8 +603,6 @@ columns:
 table: assets.display_table
 rows: assets
 columns:
-  - Owner: |
-      row_item.owner
   - Type: |
       asset_type_list()[row_item.type]
   - Income: |
@@ -809,8 +615,6 @@ rows: real_estate
 columns:
   - Description: |
       row_item.description
-  - Owner: |
-      row_item.owner
   - Market value: |
       currency(row_item.market_value)
   - Mortgage balance: |
@@ -825,8 +629,6 @@ rows: real_estate
 columns:
   - Description: |
       row_item.description
-  - Owner: |
-      row_item.owner
   - Market value: |
       currency(row_item.market_value)
   - Mortgage balance: |
@@ -869,101 +671,7 @@ rows: list(asset_type_list().keys())
 columns:
   - Type: |
       asset_type_list()[row_item]
-  - Owner(s): |
-      comma_and_list(assets.owners(type=row_item))
   - Balance: |
       currency(assets.balance_total(type=row_item))
   - Annual income: |
       currency(assets.total(type=row_item))
----
-template: financial_statement_template
-content: |
-
-  # Financial Statement for ${ client }  
-  
-  ## Net monthly income from wages
-  
-  Your income | Spouse's Income | Household member income
-  ---------------|----------------|--------
-  ${ currency(client.jobs.net_total(period_to_use=12)) } | ${ currency(spouse.jobs.net_total(period_to_use=12))} | ${currency(household.jobs.net_total(period_to_use=12))}
-  Grand total | ${currency(client.jobs.net_total(period_to_use=12) + spouse.jobs.net_total(period_to_use=12) + household.jobs.net_total(period_to_use=12) ) } | &nbsp;
-  
-
-  % if client.incomes.there_are_any or spouse.incomes.there_are_any or household.incomes.number() > 0:
-  ## Non-Wage Monthly Income summary table
-  ${income_summary_table}
-  % endif
-  
-
-  % if assets.there_are_any:
-  ## Assets
-  ${assets_summary_table}
-  Total Balance: ${currency(assets.balance_total())} Total annual income: ${ currency(assets.total()) }
-  % endif
-
-  # Detailed information
-  ## Jobs
-  
-  ### Client's Annual Income
-  ${client.jobs.display_table}
-  Gross total: ${ currency(client.jobs.total()) } Net total: ${ currency(client.jobs.net_total()) }
-  %if has_spouse:  
-  ### Spouse
-  ${spouse.jobs.display_table}
-  Gross total: ${ currency(spouse.jobs.total()) } Net total: ${ currency(spouse.jobs.net_total()) }
-  %endif
-
-  %if household.there_are_any:
-  ### Household
-  ${household.jobs.display_table}
-  Gross total: ${ currency(household.jobs.total()) } Net total: ${ currency(household.jobs.net_total()) }
-  %endif
-
-  ## Other income
-  Client
-  ${client.incomes.display_table}
-  ${ currency(client.incomes.total()) }
-  
-  %if has_spouse:
-  Spouse
-  ${ spouse.incomes.display_table}
-  ${ currency(spouse.incomes.total()) }
-  %endif
-  
-  %if household.there_are_any:
-  Household
-  ${household.incomes.display_table}
-  ${ currency(household.incomes.total()) }
-  %endif
-  
-  ## Assets
-  ${assets.display_table}
-  Total income: ${ assets.total() }
-  Total balance: ${ currency(assets.balance_total()) }
-  
-  ### Vehicles
-  
-  ${vehicles.display_table}
-  Total value: ${ currency(vehicles.total()) }
-  
-  ### Real estate
-  
-  ${real_estate.display_table}
-  Total value: ${ currency(real_estate.market_value_total()) } Total annual income: ${ currency(real_estate.total()) }
-  
-  ## Expenses
-
-  ${expenses.display_table}
-  Total annual expenses: ${ currency(expenses.total()) }
-  
----
-event:   financial_statement_download_screen
-question: |
-  Your document is ready.
-subquestion: |
-  Thank you for using this interview.
-attachments:
-  - name: Financial Statement
-    filename: statement
-    content: |     
-      ${financial_statement_template}
